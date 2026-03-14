@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageDraw
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.ndimage as ndimage
 
 class MNISTDrawer:
     def __init__(self, network):
@@ -26,7 +27,7 @@ class MNISTDrawer:
         self.root.mainloop()
 
     def paint(self, event):
-        brush_size = 18 
+        brush_size = 22
         x1, y1 = (event.x - brush_size), (event.y - brush_size)
         x2, y2 = (event.x + brush_size), (event.y + brush_size)
         
@@ -54,16 +55,21 @@ class MNISTDrawer:
         resized = cropped.resize(new_size, resample=Image.Resampling.LANCZOS)
         
         final_image = Image.new("L", (28, 28), 0)
-        
         paste_x = (28 - new_size[0]) // 2
         paste_y = (28 - new_size[1]) // 2
         final_image.paste(resized, (paste_x, paste_y))
         
         img_array = np.array(final_image) / 255.0
         
+        cy, cx = ndimage.center_of_mass(img_array)
+        if not np.isnan(cy) and not np.isnan(cx):
+            shift_y = 13.5 - cy
+            shift_x = 13.5 - cx
+            img_array = ndimage.shift(img_array, (shift_y, shift_x), cval=0.0)
+        
         plt.figure(figsize=(2, 2))
         plt.imshow(img_array, cmap='gray')
-        plt.title("Centered (MNIST Style)")
+        plt.title("What the model sees")
         plt.axis('off')
         plt.show(block=False) 
         
