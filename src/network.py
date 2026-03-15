@@ -148,7 +148,6 @@ class Network:
         return cost
     
     def plot_performance(self):
-        """Plots training vs evaluation loss and accuracy side-by-side."""
         epochs = range(len(self.training_costs))
         
         fig, axes = plt.subplots(1, 2, figsize=(14, 5))
